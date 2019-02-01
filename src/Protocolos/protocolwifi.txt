@@ -1,0 +1,7 @@
+Wifi2.4
+alcance 40m
+atenuacao 
+temperatura
+interferencia 2.4Ghz 5db
+protocols
+info 
