@@ -1,5 +1,21 @@
 #Importação dos modulos utilizados como parametros de comparação
-import initialInput, areaModule, tempModule, elecModule
+import initialInput, areaModule, tempModule, elecModule, math
+
+class protocol:
+    def __init__(self, name, alcance, snr, freq):
+        self.name = name
+        self.alcance = alcance
+        self.snr = snr
+        self.freq = freq
+
+
+def ituModel(freq, dist):
+    perda = (20*math.log10(freq)) - 28 + 30*math.log10(dist)
+    return perda
+
+def rankProtocol()
+
+def compareProtocols():
 
 
 def main():
@@ -25,6 +41,7 @@ def main():
     print("Bloco   0-500Khz 2-30Mhz 169Mhz 433Mhz 868Mhz 915Mhz 2.4Ghz 5Ghz")
     for x in range(0, nBlocos):
         print(" " + str(x+1) + "         " + str(frequencias[x][0]) + "      " + str(frequencias[x][1]) + "      " + str(frequencias[x][2]) + "     " + str(frequencias[x][3]) + "     " + str(frequencias[x][4]) + "     " + str(frequencias[x][5]) + "    " + str(frequencias[x][6]) + "    " + str(frequencias[x][7]))
+
 
     file = open("Results.txt","w")
     file.write(nomeDoProjeto + "\n" + data + "\n")
