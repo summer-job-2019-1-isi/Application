@@ -1,5 +1,5 @@
 #Importação dos modulos utilizados como parametros de comparação
-import initialInput, areaModule, tempModule, elecModule, math, operator
+import initialInput, areaModule, tempModule, elecModule, math, operator, printList
 
 #class protocol:
 #    def __init__(self, name, alcance, snr, freq):
@@ -50,37 +50,37 @@ def ituModel(freq, dist):
     perda = (20*math.log10(freq)) - 28 + 30*math.log10(dist)
     return perda
 
-def rankProtocol(nomeProtocolo, alcance, snr, freq, frequencias, nBlocos):
+def rankProtocol(protocol, frequencias, nBlocos):
     pontuacao = 0
-    if(alcance < 10):
+    if(protocol.alcance < 10):
         pontuacao += nBlocos
-    elif(alcance < 100):
+    elif(protocol.alcance < 100):
         pontuacao += 2*nBlocos
-    elif(alcance < 400):
+    elif(protocol.alcance < 400):
         pontuacao +=3*nBlocos
     else:
         pontuacao +=4*nBlocos
     
-    if(snr < 3):
+    if(protocol.snr < 3):
         pontuacao += 1*nBlocos
-    elif(snr < 6):
+    elif(protocol.snr < 6):
         pontuacao += 2*nBlocos
-    elif(snr < 12):
+    elif(protocol.snr < 12):
         pontuacao += 3*nBlocos
     else:
         pontuacao += 4*nBlocos
     
     for x in range(0, nBlocos):
-        if (int(frequencias[x][recconFreq(freq)]) >= 50 + snr):
+        if (int(frequencias[x][recconFreq(protocol.freq)]) >= 50 + protocol.snr):
             pontuacao += 0
-        elif (int(frequencias[x][recconFreq(freq)]) >= 50):
+        elif (int(frequencias[x][recconFreq(protocol.freq)]) >= 50):
             pontuacao += 1
-        elif (int(frequencias[x][recconFreq(freq)]) >= 50 - snr):
+        elif (int(frequencias[x][recconFreq(protocol.freq)]) >= 50 - protocol.snr):
             pontuacao += 2
         else:
             pontuacao += 3
             
-    return (pontuacao, nomeProtocolo)
+    return pontuacao
 
 def pontuacaoBase(alcance, snr):
     pontuacao = 0
@@ -126,6 +126,13 @@ def interferenceMap(frequencias, nBlocos, freq):
     
     return interferences
 
+def temperatureMap(temperatures, nBlocos):
+    temperatura = []
+    for x in range(0,nBlocos):
+        temperatura.append(temperatures[x])
+    
+    return temperatura
+
 
 def main():
     #Dados iniciais do projeto
@@ -151,22 +158,36 @@ def main():
     #for x in range(0, nBlocos):
     #    print(" " + str(x+1) + "         " + str(frequencias[x][0]) + "      " + str(frequencias[x][1]) + "      " + str(frequencias[x][2]) + "     " + str(frequencias[x][3]) + "     " + str(frequencias[x][4]) + "     " + str(frequencias[x][5]) + "    " + str(frequencias[x][6]) + "    " + str(frequencias[x][7]))
 
+    wifi2.rank = rankProtocol(wifi2, frequencias, nBlocos)
+    lora.rank = rankProtocol(lora, frequencias, nBlocos)
+    zigbee.rank = rankProtocol(zigbee, frequencias, nBlocos)
+    PLC.rank = rankProtocol(PLC, frequencias, nBlocos)
 
-    print("\n\n\n\n")
+    print("\n")
     protocoloEscolhido = []
-    protocoloEscolhido.append(rankProtocol(wifi2.nome, wifi2.alcance, wifi2.snr, wifi2.freq, frequencias, nBlocos))
-    protocoloEscolhido.append(rankProtocol(lora.nome, lora.alcance, lora.snr, lora.freq, frequencias, nBlocos))
-    protocoloEscolhido.append(rankProtocol(zigbee.nome, zigbee.alcance, zigbee.snr, zigbee.freq, frequencias, nBlocos))
-    protocoloEscolhido.append(rankProtocol(PLC.nome, PLC.alcance, PLC.snr, PLC.freq, frequencias, nBlocos))
-    protocoloEscolhido.sort(reverse = True)
-    print(protocoloEscolhido)
+    protocoloEscolhido.append(wifi2)
+    protocoloEscolhido.append(zigbee)
+    protocoloEscolhido.append(lora)
+    protocoloEscolhido.append(PLC)
+    protocoloEscolhido.sort(key=lambda x: x.rank, reverse = True)
+    #print(protocoloEscolhido)
+    for x in range(0, len(protocoloEscolhido)):
+        print(str(x+1) + " - " + protocoloEscolhido[x].nome)
 
-    order = int(input("Qual protocolo deseja escolher?\n"))
-    order -= 1
+    order = 1
+    while(order != 0):
+        order = int(input("Qual meio de comunicação deseja escolher? (Ou 0 para sair)\n"))
+        if(order != 0):
+            mapaDeInterferencia = interferenceMap(frequencias, nBlocos, protocoloEscolhido[order-1].freq)
+            mapaDeCalor = temperatureMap(temperatures, nBlocos)
+            print("Mapa de interferencia:")
+            printList.printList(mapaDeInterferencia)
+            print("\nMapa de calor:")
+            printList.printList(mapaDeCalor)
+            print("\n")
 
-    mapaDeInterferencia = interferenceMap(frequencias, nBlocos, 915)
-    print(mapaDeInterferencia)
-
+    file = open("InterferenceMap.ppm", "w")
+    
     #file = open("Results.txt","w")
     #file.write(nomeDoProjeto + "\n" + data + "\n")
     #file.write("A area total é de " + str(areaTotal) + "m² dividida em "+ str(nBlocos) + " blocos de " + str(areaPorBloco) + "m²\n")
@@ -180,8 +201,5 @@ def main():
     #file.close() 
 
     return
-
-
-
 
 main()
