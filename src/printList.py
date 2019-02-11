@@ -1,5 +1,6 @@
 import math
 
+#Função de auxilio para imprimir pontuações de mapas de interferencia e calor
 def printList(list):
     sqrt = int(math.sqrt(len(list)))
 

@@ -1,15 +1,19 @@
 #Importação dos modulos utilizados como parametros de comparação
 import initialInput, areaModule, tempModule, elecModule, math, operator, printList
 
-#class protocol:
-#    def __init__(self, name, alcance, snr, freq):
-#        self.name = name
-#        self.alcance = alcance
-#        self.snr = snr
-#        self.freq = freq
+#Classe comMiddle define uma classe para o meio de comunicação
+#Os parametros passados se referem a:
+# nome -> Nome do meio de comunicação
+# alcance -> Alcance do meio de comunicação (sem-fio e cabeado)
+# snr -> Refere-se ao SNR (Signal-to-Noise Rate) nos meios sem-fio, nos meios com fio é dividos em meios com tolerancia a ruidos (1) e meios
+# com alta tolerância a ruídos (2)
+# freq -> Frequencia de trabalho dos meios de comunicação sem-fio e é utilizado como taxa de transmissão nos meios cabeados
+# tempMin -> Temperatura mínima suportada pelos meios cabeados
+# tempMax -> Temperatura máxima suportada pelos meios cabeados
+# rank -> Pontuação elencada pelas funções rankMiddle e rankCableMiddle
+# cable -> Booleano indicando se o meio é cabeado ou não
 
-class myProtocol:
-    
+class comMiddle:
     def __init__(self, nome, alcance, snr, freq, tempMin, tempMax, rank, cable):
         self.nome = nome
         self.alcance = alcance
@@ -20,23 +24,26 @@ class myProtocol:
         self.rank = rank
         self.cable = cable
 
-wifi2 = myProtocol("Wifi 2.4Ghz", 400, 4, 2400, 0, 0, 0, False)
-wifi5 = myProtocol("Wifi 5Ghz", 200, 6, 5000, 0, 0, 0, False)
-lora = myProtocol("LoRa", 5000, 15, 915, 0, 0, 0, False)
-zigbee = myProtocol("ZigBee", 225, 9, 2400, 0, 0, 0, False)
-bluetooth = myProtocol("Bluetooth", 40, 4, 2400, 0, 0, 0, False)
-PLC = myProtocol("PLC", 100, 3, 30, 0, 0, 0, False)
+#Preenchimento de objetos
 
+#Meios sem fio
+wifi2 = comMiddle("Wifi 2.4Ghz", 400, 4, 2400, 0, 0, 0, False)
+wifi5 = comMiddle("Wifi 5Ghz", 200, 6, 5000, 0, 0, 0, False)
+lora = comMiddle("LoRa", 5000, 15, 915, 0, 0, 0, False)
+zigbee = comMiddle("ZigBee", 225, 9, 2400, 0, 0, 0, False)
+bluetooth = comMiddle("Bluetooth", 40, 4, 2400, 0, 0, 0, False)
+PLC = comMiddle("PLC", 100, 3, 30, 0, 0, 0, False)
 
-caboCoaxialFi = myProtocol("Cabo Coaxial Diâmetro Fino", 185, 1, 10, -30, 60, 0, True)
-caboCoaxialGr = myProtocol("Cabo Coaxial Diâmetro Espesso", 500, 1, 10, -30, 80, 0, True)
-parTranc3 = myProtocol("Par Trançado Categoria 3", 100, 1, 10, -20, 60, 0, True)
-parTranc6 = myProtocol("Par Trançado Categoria 5 e 6", 100, 1, 1000, -20, 60, 0, True)
-fibraOpt125 = myProtocol("Fibra Óptica Tipo 62.5/125", 2000, 2, 1000, -20, 75, 0, True)
-fibraOptMono = myProtocol("Fira Óptica Monomodo", 550, 2, 1000, -20, 65, 0, True)
-fibraOptMult = myProtocol("Fibra Óptica Multimodo", 550, 2, 100000, -20, 75, 0, True)
+#Meios cabeados
+caboCoaxialFi = comMiddle("Cabo Coaxial Diâmetro Fino", 185, 1, 10, -30, 60, 0, True)
+caboCoaxialGr = comMiddle("Cabo Coaxial Diâmetro Espesso", 500, 1, 10, -30, 80, 0, True)
+parTranc3 = comMiddle("Par Trançado Categoria 3", 100, 1, 10, -20, 60, 0, True)
+parTranc6 = comMiddle("Par Trançado Categoria 5 e 6", 100, 1, 1000, -20, 60, 0, True)
+fibraOpt125 = comMiddle("Fibra Óptica Tipo 62.5/125", 2000, 2, 1000, -20, 75, 0, True)
+fibraOptMono = comMiddle("Fira Óptica Monomodo", 550, 2, 1000, -20, 65, 0, True)
+fibraOptMult = comMiddle("Fibra Óptica Multimodo", 550, 2, 100000, -20, 75, 0, True)
 
-
+#Função de suporte que recebe uma intensidade de interferencia e retorna um vetor de 3 valores com a cor em RGB
 def interferencToColor(freq):
     cor = []
     interference = int(freq)
@@ -55,6 +62,7 @@ def interferencToColor(freq):
     
     return cor
 
+#Função de suporte que recebe uma temperatura entre -30 e 150 e retorna um vetor de 3 valores com a cor em RGB
 def temperatureToColor(temperature):
     cor = []
     temperature = int(temperature) + 30
@@ -87,6 +95,7 @@ def temperatureToColor(temperature):
     
     return cor
 
+#Função de suporte para o vetor de frequencias, recebe a frequencia e retorna a posição no vetor
 def recconFreq(freq):
     if freq == 5:
         return 0
@@ -106,7 +115,13 @@ def recconFreq(freq):
         return 7
     else:
         return -1
-        
+
+#Função que rankea meios de comunicação sem-fio, recebendo o objeto do meio de comunicação, o vetor de intensidade nas frequencias e o numero de blocos
+#A pontuação começa em 0 e vai incrementando a partir de alguns parametros
+#Alcance -> O alcance é incrementado a partir de um multiplicador que difere a partir do numero de blocos avaliados
+#SNR -> Se altera da mesma forma que o alcance
+#Interferencia -> A pontuação da interferencia é incrementada a partir de quantos dos blocos tem uma intensidade média
+#maior ou menor que 50 +- o snr do meio, meios onde é visto menos interferencia dentro do seu espectro ganham uma maior pontuação
 def rankMiddle(protocol, frequencias, nBlocos):
     pontuacao = 0
     if(protocol.alcance < 10):
@@ -141,6 +156,12 @@ def rankMiddle(protocol, frequencias, nBlocos):
             
     return pontuacao
 
+#Função que rankea meios de comunicação com fio, recebendo o objeto do meio de comunicação, o vetor de temperaturas e o numero de blocos
+#Os parametros avaliados são
+#Alcance -> Aumentam em fator do numero de blocos
+#Tolerância a ruídos -> Concedem pontos para meios com tolerancia a ruidos (1) e mais pontos para meios com alta tolerância a ruídos (2)
+#Taxa de transmissão -> Aumentam a pontuação a partir de um fator no numero de blocos
+#Temperatura -> Concedem uma pontuação a partira da maior e/ou menor temperatura tolerada pelo meio de comunicação em relação a temperatura media do bloco
 def rankCableMiddle(protocol, temperatures, nBlocos):
 
     pontuacao = 0
@@ -177,21 +198,7 @@ def rankCableMiddle(protocol, temperatures, nBlocos):
             
     return pontuacao
 
-def rankBlock(pontuacaoBs, freq, frequencia):
-    
-    pontuacao = pontuacaoBs
-
-    if int(frequencia[recconFreq(freq)]) >= 50 + snr:
-        pontuacao += 0
-    elif int(frequencia[recconFreq(freq)]) >= 50:
-        pontuacao += 1
-    elif int(frequencia[recconFreq(freq)]) >= 50 - snr:
-        pontuacao += 2
-    else:
-        pontuacao += 3
-            
-    return pontuacao
-
+#Função que retorna um vetor com todas as interferencias de determinada frequencia
 def interferenceMap(frequencias, nBlocos, freq):
     interferences = []
     for x in range(0,nBlocos):
@@ -199,6 +206,7 @@ def interferenceMap(frequencias, nBlocos, freq):
     
     return interferences
 
+#Função que retorna um vetor com todas as temperaturas (Acho que essa função não faz nada)
 def temperatureMap(temperatures, nBlocos):
     temperatura = []
     for x in range(0,nBlocos):
@@ -206,6 +214,7 @@ def temperatureMap(temperatures, nBlocos):
     
     return temperatura
 
+#Função auxiliar que escreve em um arquivo 50 valores separados por um \n
 def print50(value):
     for x in range(0, 50):
         file.write(str(value) + "\n")
@@ -222,7 +231,7 @@ def main():
     #Dados relacionados a frequencia (frequencias -> Array de tuplas de frequencias p/ cada bloco)
     frequencias = elecModule.elecParam(int(nBlocos))
 
-    #Meios não cabeados escolhidos
+    #Aplicando a função de pontuação nos meios sem-fio escolhidos
     wifi2.rank = rankMiddle(wifi2, frequencias, nBlocos)
     wifi5.rank = rankMiddle(wifi5,frequencias, nBlocos)
     lora.rank = rankMiddle(lora, frequencias, nBlocos)
@@ -230,7 +239,7 @@ def main():
     PLC.rank = rankMiddle(PLC, frequencias, nBlocos)
     bluetooth.rank = rankMiddle(bluetooth, frequencias, nBlocos)
 
-    print("\n")
+    #Vetor com os meios sem fio
     nonCableMiddle = []
     nonCableMiddle.append(wifi2)
     nonCableMiddle.append(wifi5)
@@ -238,11 +247,15 @@ def main():
     nonCableMiddle.append(lora)
     nonCableMiddle.append(PLC)
     nonCableMiddle.append(bluetooth)
+    #Ordenação dos meios por pontuação
     nonCableMiddle.sort(key=lambda x: x.rank, reverse = True)
+    #Print de meios mais bem pontuados com seus respectivos numeros de ordem
     print("Melhores meios de comunicação sem-fio:")
     for x in range(0, len(nonCableMiddle)):
         print(str(x+1) + " - " + nonCableMiddle[x].nome)
 
+    #Procedimento igual para meios cabeados
+    #Meios cabeados são ordenados e organizados independentes dos meios não-cabeados
     caboCoaxialFi.rank = rankCableMiddle(caboCoaxialFi ,temperatures, nBlocos)
     caboCoaxialGr.rank = rankCableMiddle(caboCoaxialGr ,temperatures, nBlocos)
     parTranc3.rank = rankCableMiddle(parTranc3 ,temperatures, nBlocos)
@@ -265,6 +278,9 @@ def main():
     for x in range(0, len(cableMiddle)):
         print(str(x+len(nonCableMiddle)+1) + " - " + cableMiddle[x].nome)
 
+    #Vetor com todos os meios disponiveis para que haja uma escolha do usuário
+    #Os meios são apresentados em telas diferentes e apenas comparados entre si
+    #O usuario tem a opção de escolher entre sem-fio e com fio, e é apresentado pra ele os melhores de cada um dos dois.
     allMiddle = []
     allMiddle.extend(nonCableMiddle)
     allMiddle.extend(cableMiddle)
@@ -302,6 +318,7 @@ def main():
                 for x in range(0, nBlocosCinzas):
                     vetorDeInteferencia.append(-1)
                 
+                #Informações para fazer a imagem colorida do mapa de interferência
                 file = open("InterferenceMap.ppm", "w")
                 file.write("P3\n")
                 file.write(str(50*largura) + " " + str(50*altura) + "\n")
@@ -329,7 +346,7 @@ def main():
     for x in range(0, nBlocosCinzas):
         vetorDeCor.append(-31)
 
-    #Imprimindo mapa de calor
+    #Arquivo colorido do mapa de calor
     file = open("HeatMap.ppm", "w")
     file.write("P3\n")
     file.write(str(50*largura) + " " + str(50*altura) + "\n")
