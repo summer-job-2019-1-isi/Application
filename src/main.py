@@ -1,5 +1,5 @@
 #Importação dos modulos utilizados como parametros de comparação
-import initialInput, areaModule, tempModule, elecModule, math, operator, printList
+import initialInput, areaModule, tempModule, elecModule, math, printList
 
 #Classe comMiddle define uma classe para o meio de comunicação
 #Os parametros passados se referem a:
@@ -45,22 +45,54 @@ fibraOptMult = comMiddle("Fibra Óptica Multimodo", 550, 2, 100000, -20, 75, 0, 
 
 #Função de suporte que recebe uma intensidade de interferencia e retorna um vetor de 3 valores com a cor em RGB
 def interferencToColor(freq):
+
     cor = []
     interference = int(freq)
 
     if(interference == -1):
         cor = [160, 160, 160]
     else:
-        if(interference >= 0 and interference <= 25):
-            cor = [255,math.ceil(interference*12.75),0]
-        elif(interference > 25 and interference <= 50):
-            cor = [(255 - math.ceil((interference-25)*(12.75))),255,0]
-        elif(interference > 50 and interference <= 75):
-            cor = [0,255,math.ceil((interference-50)*12.75)]
+        if(interference <= 50):
+            cor.append(0)
+        elif(interference >= 75):
+            cor.append(255)
         else:
-            cor = [0,(255 - math.ceil((interference-75)*(12.75))),255]
+            cor.append(math.ceil((interference - 50) * (51/5)))
+
+        if(interference >= 25 and interference <= 75):
+            cor.append(255)
+        elif(interference == 0 or interference == 100):
+            cor.append(0)
+        elif(interference < 25):
+            cor.append(math.ceil((interference) * (51/5)))
+        else:
+            cor.append(math.ceil(255 - (interference - 75) * (51/5)))
+
+        if(interference <= 25):
+            cor.append(255)
+        elif(interference >= 50):
+            cor.append(0)
+        else:
+            cor.append(math.ceil(255 - (interference - 25) * (51/5)))
     
     return cor
+
+    #cor = []
+    #interference = int(freq)
+
+#    if(interference == -1):
+#        cor = [160, 160, 160]
+#    else:
+#        if(interference <= 0 and interference >= 25):
+#            cor = [255,math.ceil(interference*12.75),0]
+#        elif(interference <= 25 and interference > 50):
+#            cor = [(255 - math.ceil((interference-25)*(12.75))),255,0]
+#        elif(interference <= 50 and interference > 75):
+#            cor = [0,255,math.ceil((interference-50)*12.75)]
+#        else:
+#            cor = [0,(255 - math.ceil((interference-75)*(12.75))),255]
+    
+#    return cor
 
 #Função de suporte que recebe uma temperatura entre -30 e 150 e retorna um vetor de 3 valores com a cor em RGB
 def temperatureToColor(temperature):
@@ -146,13 +178,13 @@ def rankMiddle(protocol, frequencias, nBlocos):
 
     for x in range(0, nBlocos):
         if (int(frequencias[x][recconFreq(protocol.freq)]) >= 50 + protocol.snr):
-            pontuacao += 0
-        elif (int(frequencias[x][recconFreq(protocol.freq)]) >= 50):
             pontuacao += 1
-        elif (int(frequencias[x][recconFreq(protocol.freq)]) >= 50 - protocol.snr):
+        elif (int(frequencias[x][recconFreq(protocol.freq)]) >= 50):
             pontuacao += 2
-        else:
+        elif (int(frequencias[x][recconFreq(protocol.freq)]) >= 50 - protocol.snr):
             pontuacao += 3
+        else:
+            pontuacao += 4
             
     return pontuacao
 
@@ -252,7 +284,7 @@ def main():
     #Print de meios mais bem pontuados com seus respectivos numeros de ordem
     print("Melhores meios de comunicação sem-fio:")
     for x in range(0, len(nonCableMiddle)):
-        print(str(x+1) + " - " + nonCableMiddle[x].nome)
+        print(str(x+1) + " - " + nonCableMiddle[x].nome + " - " + str(nonCableMiddle[x].rank))
 
     #Procedimento igual para meios cabeados
     #Meios cabeados são ordenados e organizados independentes dos meios não-cabeados
@@ -276,7 +308,7 @@ def main():
     print("\n")
     print("Melhores meios de comunicação com fio:")
     for x in range(0, len(cableMiddle)):
-        print(str(x+len(nonCableMiddle)+1) + " - " + cableMiddle[x].nome)
+        print(str(x+len(nonCableMiddle)+1) + " - " + cableMiddle[x].nome + " - " + str(cableMiddle[x].rank))
 
     #Vetor com todos os meios disponiveis para que haja uma escolha do usuário
     #Os meios são apresentados em telas diferentes e apenas comparados entre si
@@ -295,24 +327,58 @@ def main():
         order = int(input("Qual meio de comunicação deseja escolher? (Ou 0 para sair)\n"))
         if(order != 0):
             mapaDeInterferencia = interferenceMap(frequencias, nBlocos, allMiddle[order-1].freq)
-            mapaDeCalor = temperatureMap(temperatures, nBlocos)
             if(allMiddle[order-1].cable == False):
                 print("Mapa de interferencia:")
                 printList.printList(mapaDeInterferencia)
             print("\nMapa de calor:")
-            printList.printList(mapaDeCalor)
+            printList.printList(temperatures)
             print("\n")
             
             #Informações para imprimir o mapa de interferencia
+            
+            largura = int((math.sqrt(nBlocos)))
+            if(int(math.ceil((nBlocos-(largura*largura))/largura)) > 0):
+                altura = int(math.ceil((nBlocos-(largura*largura))/largura)) + largura
+            else: 
+                altura = largura
+            nTotalDeBlocos = largura * altura
+            nBlocosCinzas = nTotalDeBlocos - nBlocos
+
+            largura2 = int((math.sqrt(nBlocos)))
+            if(int(math.ceil((nBlocos-(largura2*largura2))/largura2)) > 0):
+                altura2 = int(math.ceil((nBlocos-(largura2*largura2))/largura2)) + largura2
+            else: 
+                altura2 = largura2
+                
+            #Informações para imprimir o mapa de calor
+            vetorDeCor = []
+            vetorDeCor.extend(temperatures)
+            for x in range(0, nBlocosCinzas):
+                vetorDeCor.append(-31)
+
+            #Arquivo colorido do mapa de calor
+            file = open("HeatMap.ppm", "w")
+            file.write("P3\n")
+            file.write(str(50*largura2) + " " + str(50*altura2) + "\n")
+            file.write("255\n")
+            cor = 0
+            for z in range(0, altura2):
+                for y in range(0, 50):
+                    for x in range(0, (largura2*50)):
+                        if(x != 0 and x%50 == 0):
+                            cor += 1
+                            numeroCor = temperatureToColor(vetorDeCor[cor])
+                            file.write(str(numeroCor[0]) + " " + str(numeroCor[1]) + " "+ str(numeroCor[2]) + "\n")
+                        else:
+                            numeroCor = temperatureToColor(vetorDeCor[cor])
+                            file.write(str(numeroCor[0]) + " " + str(numeroCor[1]) + " "+ str(numeroCor[2]) + "\n")
+                    cor -= largura2 -1
+                cor += largura2
+
+
+
+            vetorDeInteferencia = []
             if(allMiddle[order-1].cable == False):
-                largura = int(math.ceil(math.sqrt(nBlocos)))
-                if(int(math.ceil((nBlocos-(largura*largura))/largura)) > 0):
-                    altura = int(math.ceil((nBlocos-(largura*largura))/largura))
-                else: 
-                    altura = largura
-                nTotalDeBlocos = largura * altura
-                nBlocosCinzas = nTotalDeBlocos - nBlocos
-                vetorDeInteferencia = []
                 for x in range(0, nBlocos):
                     vetorDeInteferencia.append(frequencias[x][recconFreq(allMiddle[order-1].freq)])
                 for x in range(0, nBlocosCinzas):
@@ -339,31 +405,6 @@ def main():
                     cor += largura
             
 
-        
-    #Informações para imprimir o mapa de calor
-    vetorDeCor = []
-    vetorDeCor.extend(temperatures)
-    for x in range(0, nBlocosCinzas):
-        vetorDeCor.append(-31)
-
-    #Arquivo colorido do mapa de calor
-    file = open("HeatMap.ppm", "w")
-    file.write("P3\n")
-    file.write(str(50*largura) + " " + str(50*altura) + "\n")
-    file.write("255\n")
-    cor = 0
-    for z in range(0, altura):
-        for y in range(0, 50):
-            for x in range(0, (largura*50)):
-                if(x != 0 and x%50 == 0):
-                    cor += 1
-                    numeroCor = temperatureToColor(vetorDeCor[cor])
-                    file.write(str(numeroCor[0]) + " " + str(numeroCor[1]) + " "+ str(numeroCor[2]) + "\n")
-                else:
-                    numeroCor = temperatureToColor(vetorDeCor[cor])
-                    file.write(str(numeroCor[0]) + " " + str(numeroCor[1]) + " "+ str(numeroCor[2]) + "\n")
-            cor -= largura -1
-        cor += largura
         
     return
 
