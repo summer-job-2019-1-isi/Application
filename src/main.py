@@ -12,9 +12,8 @@ import initialInput, areaModule, tempModule, elecModule, math, printList
 # tempMax -> Temperatura máxima suportada pelos meios cabeados
 # rank -> Pontuação elencada pelas funções rankMiddle e rankCableMiddle
 # cable -> Booleano indicando se o meio é cabeado ou não
-
 class comMiddle:
-    def __init__(self, nome, alcance, snr, freq, tempMin, tempMax, rank, cable):
+    def __init__(self, nome, alcance, snr, freq, tempMin, tempMax, rank, cable, protocols):
         self.nome = nome
         self.alcance = alcance
         self.snr = snr
@@ -23,25 +22,79 @@ class comMiddle:
         self.tempMax = tempMax
         self.rank = rank
         self.cable = cable
+        self.protocols = protocols
+
+
+#Classe protocol define uma classe para cada protocolo
+# name -> Nome do protocolo
+# taxaMin -> Taxa de transmissão mínima dentro do range
+# taxaMax -> Taxa de transmissão máxmia dentro do range
+# rank -> Pontuação elencada pela função de rankProtocol
+class protocol:
+    def __init__(self, name, taxaMin, taxaMax, rank):
+        self.name = name
+        self.taxaMin = taxaMin
+        self.taxaMax = taxaMax
+        self.rank = rank
 
 #Preenchimento de objetos
 
+#Protocolos
+profibusDP = protocol("Profibus DP", 10, 12000, 0)
+profibusPA = protocol("Profibus PA", 32, 1000, 0)
+profinet = protocol("Profinet", 10000, 100000, 0)
+controlnet = protocol("Controlnet", 5000, 5000, 0)
+interbus = protocol("Interbus", 500, 500, 0)
+ethernet = protocol("Ethernet IP", 10000, 100000, 0)
+modbus = protocol("Modbus TCP", 10000, 100000, 0)
+canopen = protocol("Canopen", 10, 10000, 0)
+ieee = protocol("IEEE 802.11", 2000, 10000, 0)
+ieeea = protocol("IEEE 802.11a", 54000, 100000, 0)
+ieeeb = protocol("IEEE 802.11b", 11000, 100000, 0)
+ieeeg = protocol("IEEE 802.11g", 54000, 1000000, 0)
+ieeeac = protocol("IEEE 802.11ac", 433000, 1000000, 0)
+ieee154 = protocol("IEEE 802.15.4", 280, 1000, 0)
+ieee151 = protocol("IEEE 802.15.1", 3000, 24000, 0)
+lorawan = protocol("LoraWan", 50, 1000, 0)
+ieee1901 = protocol("IEEE 1901", 2000, 20000, 0)
+
+#Vetor de protocolos
+protocolos = []
+protocolos.append(profibusDP)
+protocolos.append(profibusPA)
+protocolos.append(profinet)
+protocolos.append(controlnet)
+protocolos.append(interbus)
+protocolos.append(ethernet)
+protocolos.append(modbus)
+protocolos.append(canopen)
+protocolos.append(ieee)
+protocolos.append(ieeea)
+protocolos.append(ieeeb)
+protocolos.append(ieeeg)
+protocolos.append(ieeeac)
+protocolos.append(ieee154)
+protocolos.append(ieee151)
+protocolos.append(lorawan)
+protocolos.append(ieee1901)
+
+
 #Meios sem fio
-wifi2 = comMiddle("Wifi 2.4Ghz", 400, 4, 2400, 0, 0, 0, False)
-wifi5 = comMiddle("Wifi 5Ghz", 200, 6, 5000, 0, 0, 0, False)
-lora = comMiddle("LoRa", 5000, 15, 915, 0, 0, 0, False)
-zigbee = comMiddle("ZigBee", 225, 9, 2400, 0, 0, 0, False)
-bluetooth = comMiddle("Bluetooth", 40, 4, 2400, 0, 0, 0, False)
-PLC = comMiddle("PLC", 100, 3, 30, 0, 0, 0, False)
+wifi2 = comMiddle("Wifi 2.4Ghz", 400, 4, 2400, 0, 0, 0, False, [8,9,10,11])
+wifi5 = comMiddle("Wifi 5Ghz", 200, 6, 5000, 0, 0, 0, False, [8,9,10,11,12])
+lora = comMiddle("LoRa", 5000, 15, 915, 0, 0, 0, False, [15])
+zigbee = comMiddle("ZigBee", 225, 9, 2400, 0, 0, 0, False, [13])
+bluetooth = comMiddle("Bluetooth", 40, 4, 2400, 0, 0, 0, False, [14])
+PLC = comMiddle("PLC", 100, 3, 30, 0, 0, 0, False, [16])
 
 #Meios cabeados
-caboCoaxialFi = comMiddle("Cabo Coaxial Diâmetro Fino", 185, 1, 10, -30, 60, 0, True)
-caboCoaxialGr = comMiddle("Cabo Coaxial Diâmetro Espesso", 500, 1, 10, -30, 80, 0, True)
-parTranc3 = comMiddle("Par Trançado Categoria 3", 100, 1, 10, -20, 60, 0, True)
-parTranc6 = comMiddle("Par Trançado Categoria 5 e 6", 100, 1, 1000, -20, 60, 0, True)
-fibraOpt125 = comMiddle("Fibra Óptica Tipo 62.5/125", 2000, 2, 1000, -20, 75, 0, True)
-fibraOptMono = comMiddle("Fira Óptica Monomodo", 550, 2, 1000, -20, 65, 0, True)
-fibraOptMult = comMiddle("Fibra Óptica Multimodo", 550, 2, 100000, -20, 75, 0, True)
+caboCoaxialFi = comMiddle("Cabo Coaxial Diâmetro Fino", 185, 1, 10, -30, 60, 0, True, [0, 1, 2, 3, 4])
+caboCoaxialGr = comMiddle("Cabo Coaxial Diâmetro Espesso", 500, 1, 10, -30, 80, 0, True, [0,1,2,3,4])
+parTranc3 = comMiddle("Par Trançado Categoria 3", 100, 1, 10, -20, 60, 0, True, [0,1,2,5,6,7])
+parTranc6 = comMiddle("Par Trançado Categoria 5 e 6", 100, 1, 1000, -20, 60, 0, True, [0,1,2,5,6,7])
+fibraOpt125 = comMiddle("Fibra Óptica Tipo 62.5/125", 2000, 2, 1000, -20, 75, 0, True, [0,1,2,3,4])
+fibraOptMono = comMiddle("Fira Óptica Monomodo", 550, 2, 1000, -20, 65, 0, True, [0,1,2,3,4])
+fibraOptMult = comMiddle("Fibra Óptica Multimodo", 550, 2, 100000, -20, 75, 0, True, [0,1,2,3,4])
 
 #Função de suporte que recebe uma intensidade de interferencia e retorna um vetor de 3 valores com a cor em RGB
 def interferencToColor(freq):
@@ -79,20 +132,6 @@ def interferencToColor(freq):
 
     #cor = []
     #interference = int(freq)
-
-#    if(interference == -1):
-#        cor = [160, 160, 160]
-#    else:
-#        if(interference <= 0 and interference >= 25):
-#            cor = [255,math.ceil(interference*12.75),0]
-#        elif(interference <= 25 and interference > 50):
-#            cor = [(255 - math.ceil((interference-25)*(12.75))),255,0]
-#        elif(interference <= 50 and interference > 75):
-#            cor = [0,255,math.ceil((interference-50)*12.75)]
-#        else:
-#            cor = [0,(255 - math.ceil((interference-75)*(12.75))),255]
-    
-#    return cor
 
 #Função de suporte que recebe uma temperatura entre -30 e 150 e retorna um vetor de 3 valores com a cor em RGB
 def temperatureToColor(temperature):
@@ -252,10 +291,44 @@ def print50(value):
         file.write(str(value) + "\n")
     return
 
+#Função de auxilio para imprimir protocolos
+def printProtocols(protocols):
+    for x in range (0, len(protocols)):
+        print(str(x + 1) + " - " + str(protocols[x].name))
+    return
+
+#Função que dá pontos extras por protocolos que abranjam o a taxa necessaria
+def extraPointsProtocol(meio, protocolos, taxaDeTrans, nBlocos):
+    pontuacao = 0
+    for x in range(0, len(meio.protocols)):
+        if (int(taxaDeTrans) > protocolos[meio.protocols[x]].taxaMax):
+            pontuacao += 0
+        elif (int(taxaDeTrans) <= (protocolos[meio.protocols[x]].taxaMin - 1000)):
+            pontuacao += 1*nBlocos
+        else:
+            pontuacao += math.ceil(2*nBlocos)
+        
+    pontuacao = math.ceil(pontuacao/len(meio.protocols))
+    #print(str(meio.nome) + " - " + str(pontuacao))
+    return pontuacao
+
+#Função para rankear os protocolos
+def rankProtocols(protocol, taxaDeTrans):
+    pontuacao = 0
+    if (int(taxaDeTrans) > protocol.taxaMax):
+        pontuacao = 0
+    elif (int(taxaDeTrans) <= protocol.taxaMin - 10000):
+        pontuacao = 1
+    elif (int(taxaDeTrans) <= protocol.taxaMin - 1000):
+        pontuacao = 3
+    else:
+        pontuacao = 4
+    return pontuacao
+
 
 def main():
     #Dados iniciais do projeto
-    nomeDoProjeto, data = initialInput.projectData()
+    nomeDoProjeto, data, taxaDeTrans = initialInput.projectData()
     #Dados relacionados a área
     areaTotal, nBlocos, areaPorBloco = areaModule.areaParam()
     #Dados relacionados a temperatura (temperature -> Array com temperaturas dos blocos)
@@ -263,13 +336,16 @@ def main():
     #Dados relacionados a frequencia (frequencias -> Array de tuplas de frequencias p/ cada bloco)
     frequencias = elecModule.elecParam(int(nBlocos))
 
+    
+
+
     #Aplicando a função de pontuação nos meios sem-fio escolhidos
-    wifi2.rank = rankMiddle(wifi2, frequencias, nBlocos)
-    wifi5.rank = rankMiddle(wifi5,frequencias, nBlocos)
-    lora.rank = rankMiddle(lora, frequencias, nBlocos)
-    zigbee.rank = rankMiddle(zigbee, frequencias, nBlocos)
-    PLC.rank = rankMiddle(PLC, frequencias, nBlocos)
-    bluetooth.rank = rankMiddle(bluetooth, frequencias, nBlocos)
+    wifi2.rank = rankMiddle(wifi2, frequencias, nBlocos) + extraPointsProtocol(wifi2, protocolos, taxaDeTrans, nBlocos)
+    wifi5.rank = rankMiddle(wifi5,frequencias, nBlocos) + extraPointsProtocol(wifi5, protocolos, taxaDeTrans, nBlocos)
+    lora.rank = rankMiddle(lora, frequencias, nBlocos) + extraPointsProtocol(lora, protocolos, taxaDeTrans, nBlocos)
+    zigbee.rank = rankMiddle(zigbee, frequencias, nBlocos) + extraPointsProtocol(zigbee, protocolos, taxaDeTrans, nBlocos)
+    PLC.rank = rankMiddle(PLC, frequencias, nBlocos) + extraPointsProtocol(PLC, protocolos, taxaDeTrans, nBlocos)
+    bluetooth.rank = rankMiddle(bluetooth, frequencias, nBlocos) + extraPointsProtocol(bluetooth, protocolos, taxaDeTrans, nBlocos)
 
     #Vetor com os meios sem fio
     nonCableMiddle = []
@@ -288,13 +364,13 @@ def main():
 
     #Procedimento igual para meios cabeados
     #Meios cabeados são ordenados e organizados independentes dos meios não-cabeados
-    caboCoaxialFi.rank = rankCableMiddle(caboCoaxialFi ,temperatures, nBlocos)
-    caboCoaxialGr.rank = rankCableMiddle(caboCoaxialGr ,temperatures, nBlocos)
-    parTranc3.rank = rankCableMiddle(parTranc3 ,temperatures, nBlocos)
-    parTranc6.rank = rankCableMiddle(parTranc6 ,temperatures, nBlocos)
-    fibraOpt125.rank = rankCableMiddle(fibraOpt125 ,temperatures, nBlocos)
-    fibraOptMono.rank = rankCableMiddle(fibraOptMono ,temperatures, nBlocos)
-    fibraOptMult.rank = rankCableMiddle(fibraOptMult ,temperatures, nBlocos)
+    caboCoaxialFi.rank = rankCableMiddle(caboCoaxialFi ,temperatures, nBlocos) + extraPointsProtocol(caboCoaxialFi, protocolos, taxaDeTrans, nBlocos)
+    caboCoaxialGr.rank = rankCableMiddle(caboCoaxialGr ,temperatures, nBlocos) + extraPointsProtocol(caboCoaxialGr, protocolos, taxaDeTrans, nBlocos)
+    parTranc3.rank = rankCableMiddle(parTranc3 ,temperatures, nBlocos) + extraPointsProtocol(parTranc3, protocolos, taxaDeTrans, nBlocos)
+    parTranc6.rank = rankCableMiddle(parTranc6 ,temperatures, nBlocos) + extraPointsProtocol(parTranc6, protocolos, taxaDeTrans, nBlocos)
+    fibraOpt125.rank = rankCableMiddle(fibraOpt125 ,temperatures, nBlocos) + extraPointsProtocol(fibraOpt125, protocolos, taxaDeTrans, nBlocos)
+    fibraOptMono.rank = rankCableMiddle(fibraOptMono ,temperatures, nBlocos) + extraPointsProtocol(fibraOptMono, protocolos, taxaDeTrans, nBlocos)
+    fibraOptMult.rank = rankCableMiddle(fibraOptMult ,temperatures, nBlocos) + extraPointsProtocol(fibraOptMult, protocolos, taxaDeTrans, nBlocos)
 
     cableMiddle = []
     cableMiddle.append(parTranc3)
@@ -317,10 +393,29 @@ def main():
     allMiddle.extend(nonCableMiddle)
     allMiddle.extend(cableMiddle)
 
+    #Rankeamento dos protocolos a partir da taxa de transmissão
+    profibusDP.rank = rankProtocols(profibusDP, taxaDeTrans)
+    profibusPA.rank = rankProtocols(profibusPA, taxaDeTrans)
+    profinet.rank = rankProtocols(profinet, taxaDeTrans)
+    controlnet.rank = rankProtocols(controlnet, taxaDeTrans)
+    interbus.rank = rankProtocols(interbus, taxaDeTrans)
+    ethernet.rank = rankProtocols(ethernet, taxaDeTrans)
+    modbus.rank = rankProtocols(modbus, taxaDeTrans)
+    canopen.rank = rankProtocols(canopen, taxaDeTrans)
+    ieee.rank = rankProtocols(ieee, taxaDeTrans)
+    ieeea.rank = rankProtocols(ieeea, taxaDeTrans)
+    ieeeb.rank = rankProtocols(ieeeb, taxaDeTrans)
+    ieeeg.rank = rankProtocols(ieeeg, taxaDeTrans)
+    ieeeac.rank = rankProtocols(ieeeac, taxaDeTrans)
+    ieee151.rank = rankProtocols(ieee151, taxaDeTrans)
+    ieee154.rank = rankProtocols(ieee154, taxaDeTrans)
+    lorawan.rank = rankProtocols(lorawan, taxaDeTrans)
+    ieee1901.rank = rankProtocols(ieee1901, taxaDeTrans)
 
 
-   
     
+
+        
     #Informações de seleção de meio de comunicação
     order = 1
     while(order != 0):
@@ -334,6 +429,15 @@ def main():
             printList.printList(temperatures)
             print("\n")
             
+            #Organização e impressão de protocolos uteis
+            choosenProtocols = []
+            for x in range(0, len(allMiddle[order-1].protocols)):
+                choosenProtocols.append(protocolos[allMiddle[order-1].protocols[x]])
+            choosenProtocols.sort(key=lambda x: x.rank, reverse = True)
+
+            print("Melhores protocolos para esse meio:")
+            printProtocols(choosenProtocols)
+            
             #Informações para imprimir o mapa de interferencia
             
             largura = int((math.sqrt(nBlocos)))
@@ -343,12 +447,6 @@ def main():
                 altura = largura
             nTotalDeBlocos = largura * altura
             nBlocosCinzas = nTotalDeBlocos - nBlocos
-
-            largura2 = int((math.sqrt(nBlocos)))
-            if(int(math.ceil((nBlocos-(largura2*largura2))/largura2)) > 0):
-                altura2 = int(math.ceil((nBlocos-(largura2*largura2))/largura2)) + largura2
-            else: 
-                altura2 = largura2
                 
             #Informações para imprimir o mapa de calor
             vetorDeCor = []
@@ -359,12 +457,12 @@ def main():
             #Arquivo colorido do mapa de calor
             file = open("HeatMap.ppm", "w")
             file.write("P3\n")
-            file.write(str(50*largura2) + " " + str(50*altura2) + "\n")
+            file.write(str(50*largura) + " " + str(50*altura) + "\n")
             file.write("255\n")
             cor = 0
-            for z in range(0, altura2):
+            for z in range(0, altura):
                 for y in range(0, 50):
-                    for x in range(0, (largura2*50)):
+                    for x in range(0, (largura*50)):
                         if(x != 0 and x%50 == 0):
                             cor += 1
                             numeroCor = temperatureToColor(vetorDeCor[cor])
@@ -372,8 +470,8 @@ def main():
                         else:
                             numeroCor = temperatureToColor(vetorDeCor[cor])
                             file.write(str(numeroCor[0]) + " " + str(numeroCor[1]) + " "+ str(numeroCor[2]) + "\n")
-                    cor -= largura2 -1
-                cor += largura2
+                    cor -= largura -1
+                cor += largura
 
 
 

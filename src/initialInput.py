@@ -2,4 +2,5 @@
 def projectData():
     nomeDoProjeto = input("Nome do projeto: ")
     data = input("Data: ")
-    return nomeDoProjeto, data 
+    taxaDeTrans = input("Quanto de banda você deseja? 1 - 100000 kbps: ")
+    return nomeDoProjeto, data, taxaDeTrans 
